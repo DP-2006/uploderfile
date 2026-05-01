@@ -1,0 +1,535 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}پنل سوپر ادمین{% endblock %}
+
+{% block extra_head %}
+
+
+
+:root{
+--primary:#4a90e2;
+--bg:#f4f7f6;
+--panel:#ffffff;
+--border:#e4e6ea;
+--text:#333;
+--danger:#e74c3c;
+--success:#2ecc71;
+--warning:#f39c12;
+--radius:8px;
+--menu-width:300px;
+--font:14px;
+}
+
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:tahoma,Segoe UI;
+background:var(--bg);
+color:var(--text);
+font-size:var(--font);
+height:100vh;
+overflow:hidden;
+display:flex;
+}
+
+/* ---------- sidebar ---------- */
+
+.sidebar{
+width:var(--menu-width);
+background:var(--panel);
+border-left:1px solid var(--border);
+display:flex;
+flex-direction:column;
+padding:15px;
+overflow:auto;
+}
+
+.sidebar-header{
+font-weight:bold;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+padding-bottom:10px;
+border-bottom:2px solid var(--primary);
+}
+
+.control-group{
+background:#fafafa;
+border:1px solid var(--border);
+padding:12px;
+border-radius:var(--radius);
+margin-bottom:15px;
+}
+
+.control-group h6{
+margin:0 0 10px;
+color:var(--primary);
+font-size:13px;
+}
+
+.form-control,.form-select{
+width:100%;
+padding:8px;
+border-radius:6px;
+border:1px solid var(--border);
+font-size:13px;
+}
+
+.form-control:focus{
+outline:none;
+border-color:var(--primary);
+}
+
+/* ---------- buttons ---------- */
+
+.btn{
+width:100%;
+padding:9px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+margin-top:6px;
+}
+
+.btn-primary{background:var(--primary);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border)}
+
+/* ---------- center ---------- */
+
+.upload-area{
+flex:1;
+display:flex;
+flex-direction:column;
+padding:18px;
+overflow:hidden;
+}
+
+.top-bar{
+background:var(--panel);
+border:1px solid var(--border);
+border-radius:var(--radius);
+padding:10px 16px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+.search-box{
+background:#fff;
+border:1px solid var(--border);
+border-radius:6px;
+padding:4px 8px;
+display:flex;
+align-items:center;
+}
+
+.search-box input{
+border:none;
+outline:none;
+width:200px;
+font-size:13px;
+}
+
+/* ---------- user list ---------- */
+
+.user-list{
+flex:1;
+background:var(--panel);
+border-radius:var(--radius);
+border:1px solid var(--border);
+overflow:auto;
+}
+
+.user-item{
+display:flex;
+align-items:center;
+padding:12px;
+border-bottom:1px solid #f0f0f0;
+transition:background .2s;
+}
+
+.user-item:hover{
+background:#fafafa;
+}
+
+.user-avatar{
+width:42px;
+height:42px;
+border-radius:50%;
+margin-left:10px;
+object-fit:cover;
+border:2px solid #eee;
+}
+
+.user-info{flex:1}
+
+.user-name{font-weight:bold;font-size:13px}
+
+.user-username{font-size:11px;color:#777}
+
+.user-actions{
+display:flex;
+gap:6px;
+}
+
+.action-btn{
+width:30px;
+height:30px;
+border-radius:6px;
+border:none;
+cursor:pointer;
+background:#f2f2f2;
+}
+
+.action-btn:hover{
+transform:scale(1.08);
+}
+
+.block{color:#e67e22}
+.edit{color:#4a90e2}
+.delete{color:#e74c3c}
+
+/* ---------- permission panel ---------- */
+
+.my-files-panel{
+width:320px;
+background:var(--panel);
+border-right:1px solid var(--border);
+display:flex;
+flex-direction:column;
+}
+
+.my-files-header{
+padding:12px;
+border-bottom:1px solid var(--border);
+background:#f5f6f7;
+font-weight:bold;
+}
+
+.my-files-list{
+flex:1;
+overflow:auto;
+padding:10px;
+}
+
+.permission-item{
+border:1px solid var(--border);
+border-radius:6px;
+padding:8px;
+margin-bottom:6px;
+cursor:pointer;
+font-size:12px;
+}
+
+.permission-item.selected{
+border-color:var(--primary);
+background:#eef5ff;
+}
+
+/* ---------- skeleton ---------- */
+
+.skeleton{
+background:linear-gradient(
+90deg,
+#f0f0f0 25%,
+#e6e6e6 37%,
+#f0f0f0 63%
+);
+background-size:400% 100%;
+animation:skeleton 1.2s ease infinite;
+}
+
+@keyframes skeleton{
+0%{background-position:100% 50%}
+100%{background-position:0 50%}
+}
+
+.skeleton-user{
+height:60px;
+margin:8px;
+border-radius:6px;
+}
+
+/* ---------- responsive ---------- */
+
+@media(max-width:1000px){
+
+body{flex-direction:column;height:auto}
+
+.sidebar,.upload-area,.my-files-panel{
+width:100%;
+}
+
+}
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- sidebar -->
+
+<div class="sidebar lazy-section" data-section="sidebar">
+
+<div class="sidebar-header">
+پنل سوپر ادمین
+</div>
+
+<div class="control-group">
+<h6>سیاست رمز</h6>
+
+{% csrf_token %}
+
+<input class="form-control" type="number" name="min_length" placeholder="حداقل طول">
+
+<button class="btn btn-primary">ذخیره</button>
+
+</form>
+</div>
+
+<div class="control-group">
+<h6>ایجاد نقش</h6>
+
+<form method="post" action="{% url 'create_role' %}">
+{% csrf_token %}
+
+<input class="form-control" name="role_name" placeholder="نام نقش">
+
+<button class="btn btn-success">ایجاد</button>
+
+</form>
+
+</div>
+
+<a href="/admin-panel/" class="btn btn-danger">بازگشت</a>
+
+</div>
+
+<!-- center -->
+
+<div class="upload-area">
+
+<div class="top-bar">
+
+<h4>کاربران</h4>
+
+<div class="search-box">
+<input id="userSearch" placeholder="جستجو">
+</div>
+
+</div>
+
+<div id="userList" class="user-list">
+
+<!-- skeleton loading -->
+
+<div id="skeletonContainer">
+
+<div class="skeleton skeleton-user"></div>
+<div class="skeleton skeleton-user"></div>
+<div class="skeleton skeleton-user"></div>
+<div class="skeleton skeleton-user"></div>
+<div class="skeleton skeleton-user"></div>
+
+</div>
+
+<!-- users -->
+
+<div id="usersContainer" style="display:none">
+
+{% for user in users %}
+
+<div class="user-item user-row"
+
+data-name="{{ user.first_name }} {{ user.last_name }} {{ user.username }}">
+
+<img loading="lazy"
+src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}"
+class="user-avatar">
+
+<div class="user-info">
+
+<div class="user-name">
+{{ user.first_name }} {{ user.last_name }}
+</div>
+
+<div class="user-username">
+@{{ user.username }}
+</div>
+
+</div>
+
+<div class="user-actions">
+
+<button class="action-btn block"
+onclick="toggleBlock({{ user.id }})">🔒</button>
+
+<button class="action-btn edit"
+onclick="editUser({{ user.id }})">✏️</button>
+
+{% if user.id != request.user.id %}
+<button class="action-btn delete"
+onclick="deleteUser({{ user.id }})">🗑</button>
+{% endif %}
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+<!-- permissions -->
+
+<div class="my-files-panel lazy-section" data-section="permissions">
+
+<div class="my-files-header">
+مدیریت دسترسی
+</div>
+
+<div class="my-files-list">
+
+<form method="post" action="{% url 'save_permissions' %}">
+{% csrf_token %}
+
+<select name="role_id" class="form-select">
+<option>انتخاب نقش</option>
+{% for role in all_roles %}
+<option value="{{role.id}}">{{role.name}}</option>
+{% endfor %}
+</select>
+
+<hr>
+
+{% for perm in all_perms %}
+
+<div class="permission-item"
+onclick="togglePermission('p{{perm.id}}')">
+
+<input type="checkbox"
+id="p{{perm.id}}"
+name="permissions"
+value="{{perm.id}}">
+
+{{perm.name}}
+
+</div>
+
+{% endfor %}
+
+<button class="btn btn-primary">
+ذخیره
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<script defer>
+
+/* ---------- progressive load ---------- */
+
+window.addEventListener("load",()=>{
+
+setTimeout(()=>{
+
+document.getElementById("skeletonContainer").style.display="none"
+document.getElementById("usersContainer").style.display="block"
+
+},300)
+
+})
+
+/* ---------- search ---------- */
+
+document.getElementById("userSearch").addEventListener("keyup",function(){
+
+let val=this.value.toLowerCase()
+
+document.querySelectorAll(".user-row").forEach(u=>{
+
+let name=u.dataset.name.toLowerCase()
+
+u.style.display=name.includes(val)?"flex":"none"
+
+})
+
+})
+
+/* ---------- lazy section load ---------- */
+
+const observer=new IntersectionObserver(entries=>{
+
+entries.forEach(entry=>{
+
+if(entry.isIntersecting){
+
+entry.target.classList.add("loaded")
+
+}
+
+})
+
+})
+
+document.querySelectorAll(".lazy-section").forEach(el=>{
+
+observer.observe(el)
+
+})
+
+/* ---------- permission toggle ---------- */
+
+function togglePermission(id){
+
+let cb=document.getElementById(id)
+
+cb.checked=!cb.checked
+
+cb.parentElement.classList.toggle("selected",cb.checked)
+
+}
+
+/* ---------- api actions ---------- */
+
+function toggleBlock(id){
+
+fetch(`/api/toggle-block/${id}/`,{method:"POST"})
+
+.then(()=>location.reload())
+
+}
+
+function editUser(id){
+
+location.href="/admin/auth/user/"+id+"/change/"
+
+}
+
+function deleteUser(id){
+
+if(!confirm("حذف شود؟"))return
+
+fetch(`/api/delete-user/${id}/`,{method:"POST"})
+
+.then(()=>location.reload())
+
+}
+
+</script>
+{% endblock %}
+
+
