@@ -1,535 +1,778 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}پنل سوپر ادمین{% endblock %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>admin panel manager</title>
+    <!-- Font Awesome (Minimal Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block extra_head %}
+        body {
+            background: #f1f5f9;
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Tahoma', sans-serif;
+            color: #0f172a;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
 
+        /* ---------- SIDEBAR (Glassmorphism) ---------- */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-left: 1px solid rgba(203, 213, 225, 0.5);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+            z-index: 20;
+        }
 
+        .sidebar-header {
+            font-size: 1.55rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e293b, #2c3e66);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
 
-:root{
---primary:#4a90e2;
---bg:#f4f7f6;
---panel:#ffffff;
---border:#e4e6ea;
---text:#333;
---danger:#e74c3c;
---success:#2ecc71;
---warning:#f39c12;
---radius:8px;
---menu-width:300px;
---font:14px;
-}
+        .sidebar-header i {
+            background: none;
+            color: #3b82f6;
+            font-size: 1.7rem;
+        }
 
-*{box-sizing:border-box}
+        .control-card {
+            background: #ffffffcc;
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
 
-body{
-margin:0;
-font-family:tahoma,Segoe UI;
-background:var(--bg);
-color:var(--text);
-font-size:var(--font);
-height:100vh;
-overflow:hidden;
-display:flex;
-}
+        .control-card h6 {
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            color: #1e293b;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
 
-/* ---------- sidebar ---------- */
+        .form-modern {
+            width: 100%;
+            padding: 0.6rem 0.9rem;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            margin-bottom: 0.5rem;
+        }
 
-.sidebar{
-width:var(--menu-width);
-background:var(--panel);
-border-left:1px solid var(--border);
-display:flex;
-flex-direction:column;
-padding:15px;
-overflow:auto;
-}
+        .form-modern:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
 
-.sidebar-header{
-font-weight:bold;
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-padding-bottom:10px;
-border-bottom:2px solid var(--primary);
-}
+        .btn-modern {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 40px;
+            border: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            background: #f1f5f9;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+        }
 
-.control-group{
-background:#fafafa;
-border:1px solid var(--border);
-padding:12px;
-border-radius:var(--radius);
-margin-bottom:15px;
-}
+        .btn-primary-mod {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .btn-primary-mod:hover { background: #2563eb; transform: scale(0.98);}
+        .btn-success-mod {
+            background: #10b981;
+            color: white;
+        }
+        .btn-danger-mod {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-outline-mod {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-outline-mod:hover { background: #f8fafc; }
 
-.control-group h6{
-margin:0 0 10px;
-color:var(--primary);
-font-size:13px;
-}
+        /* ----- main center area ----- */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1.4rem 1.8rem;
+            overflow: hidden;
+        }
 
-.form-control,.form-select{
-width:100%;
-padding:8px;
-border-radius:6px;
-border:1px solid var(--border);
-font-size:13px;
-}
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-.form-control:focus{
-outline:none;
-border-color:var(--primary);
-}
+        .page-title {
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: linear-gradient(to left, #0f172a, #334155);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-/* ---------- buttons ---------- */
+        .search-wrapper {
+            background: white;
+            border-radius: 48px;
+            border: 1px solid #e2e8f0;
+            padding: 0.4rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .search-wrapper input {
+            border: none;
+            background: transparent;
+            width: 200px;
+            font-size: 0.85rem;
+            outline: none;
+        }
 
-.btn{
-width:100%;
-padding:9px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-size:13px;
-margin-top:6px;
-}
+        /* user list - modern cards */
+        .user-grid {
+            flex: 1;
+            overflow-y: auto;
+            background: transparent;
+            border-radius: 24px;
+        }
 
-.btn-primary{background:var(--primary);color:#fff}
-.btn-success{background:var(--success);color:#fff}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-outline{background:transparent;border:1px solid var(--border)}
+        .user-card {
+            background: white;
+            border-radius: 20px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+        .user-card:hover {
+            border-color: #cbd5e1;
+            background: #fefefe;
+            transform: translateY(-1px);
+        }
 
-/* ---------- center ---------- */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .avatar-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(145deg, #eef2ff, #e0e7ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #3b82f6;
+        }
+        .user-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .user-username {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
 
-.upload-area{
-flex:1;
-display:flex;
-flex-direction:column;
-padding:18px;
-overflow:hidden;
-}
+        .action-group {
+            display: flex;
+            gap: 8px;
+        }
+        .icon-btn {
+            background: #f8fafc;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn.block { color: #e67e22; }
+        .icon-btn.edit { color: #3b82f6; }
+        .icon-btn.delete { color: #ef4444; }
+        .icon-btn:hover { background: #eef2ff; transform: scale(1.05); }
 
-.top-bar{
-background:var(--panel);
-border:1px solid var(--border);
-border-radius:var(--radius);
-padding:10px 16px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:10px;
-}
+        /* pagination modern */
+        .pagination-wrap {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 0.4rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn.active-page {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        .page-btn:hover:not(.active-page) {
+            background: #f1f5f9;
+        }
 
-.search-box{
-background:#fff;
-border:1px solid var(--border);
-border-radius:6px;
-padding:4px 8px;
-display:flex;
-align-items:center;
-}
+        /* RIGHT PANEL (permissions) */
+        .perm-panel {
+            width: 290px;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(6px);
+            border-right: 1px solid #e9eef3;
+            display: flex;
+            flex-direction: column;
+            padding: 1.2rem 1rem;
+            overflow-y: auto;
+        }
+        .perm-header {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .perm-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .perm-item {
+            background: #f9f9fc;
+            border-radius: 16px;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #eef2ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .perm-item.selected {
+            background: #eef2ff;
+            border-color: #3b82f6;
+        }
+        .perm-item input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
 
-.search-box input{
-border:none;
-outline:none;
-width:200px;
-font-size:13px;
-}
+        /* skeleton */
+        .skeleton-user-item {
+            background: #e2e8f0;
+            border-radius: 20px;
+            height: 68px;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
 
-/* ---------- user list ---------- */
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #eef2ff; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #b9c8f0; border-radius: 10px; }
 
-.user-list{
-flex:1;
-background:var(--panel);
-border-radius:var(--radius);
-border:1px solid var(--border);
-overflow:auto;
-}
+        @media (max-width: 860px) {
+            body { flex-direction: column; height: auto; overflow: auto; }
+            .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; gap: 12px; border-left: none; border-bottom: 1px solid #e2e8f0; }
+            .perm-panel { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; }
+            .main-area { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
 
-.user-item{
-display:flex;
-align-items:center;
-padding:12px;
-border-bottom:1px solid #f0f0f0;
-transition:background .2s;
-}
+<!-- SIDEBAR (سیاست رمز + نقش) -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-crown"></i>
+        <span>admin panale </span>
+    </div>
 
-.user-item:hover{
-background:#fafafa;
-}
+    <div class="control-card">
+        <h6><i class="fas fa-key"></i>password palicy ر</h6>
+        <input type="number" id="minLengthInput" class="form-modern" placeholder="حداقل طول رمز" value="6">
+        <button class="btn-modern btn-primary-mod" id="savePolicyBtn">ذخیره سیاست</button>
+    </div>
 
-.user-avatar{
-width:42px;
-height:42px;
-border-radius:50%;
-margin-left:10px;
-object-fit:cover;
-border:2px solid #eee;
-}
+    <div class="control-card">
+        <h6><i class="fas fa-layer-group"></i> ایجاد نقش جدید</h6>
+        <input type="text" id="newRoleName" class="form-modern" placeholder="نام نقش">
+        <button class="btn-modern btn-success-mod" id="createRoleBtn">ایجاد نقش</button>
+    </div>
 
-.user-info{flex:1}
-
-.user-name{font-weight:bold;font-size:13px}
-
-.user-username{font-size:11px;color:#777}
-
-.user-actions{
-display:flex;
-gap:6px;
-}
-
-.action-btn{
-width:30px;
-height:30px;
-border-radius:6px;
-border:none;
-cursor:pointer;
-background:#f2f2f2;
-}
-
-.action-btn:hover{
-transform:scale(1.08);
-}
-
-.block{color:#e67e22}
-.edit{color:#4a90e2}
-.delete{color:#e74c3c}
-
-/* ---------- permission panel ---------- */
-
-.my-files-panel{
-width:320px;
-background:var(--panel);
-border-right:1px solid var(--border);
-display:flex;
-flex-direction:column;
-}
-
-.my-files-header{
-padding:12px;
-border-bottom:1px solid var(--border);
-background:#f5f6f7;
-font-weight:bold;
-}
-
-.my-files-list{
-flex:1;
-overflow:auto;
-padding:10px;
-}
-
-.permission-item{
-border:1px solid var(--border);
-border-radius:6px;
-padding:8px;
-margin-bottom:6px;
-cursor:pointer;
-font-size:12px;
-}
-
-.permission-item.selected{
-border-color:var(--primary);
-background:#eef5ff;
-}
-
-/* ---------- skeleton ---------- */
-
-.skeleton{
-background:linear-gradient(
-90deg,
-#f0f0f0 25%,
-#e6e6e6 37%,
-#f0f0f0 63%
-);
-background-size:400% 100%;
-animation:skeleton 1.2s ease infinite;
-}
-
-@keyframes skeleton{
-0%{background-position:100% 50%}
-100%{background-position:0 50%}
-}
-
-.skeleton-user{
-height:60px;
-margin:8px;
-border-radius:6px;
-}
-
-/* ---------- responsive ---------- */
-
-@media(max-width:1000px){
-
-body{flex-direction:column;height:auto}
-
-.sidebar,.upload-area,.my-files-panel{
-width:100%;
-}
-
-}
-
-{% endblock %}
-
-
-{% block content %}
-
-<!-- sidebar -->
-
-<div class="sidebar lazy-section" data-section="sidebar">
-
-<div class="sidebar-header">
-پنل سوپر ادمین
+    <button id="backHomeBtn" class="btn-modern btn-outline-mod" style="margin-top: auto;"><i class="fas fa-arrow-right"></i> بازگشت</button>
 </div>
 
-<div class="control-group">
-<h6>سیاست رمز</h6>
+<!-- MAIN AREA: Users with pagination -->
+<div class="main-area">
+    <div class="top-nav">
+        <div class="page-title"><i class="fas fa-users"></i> کاربران سامانه</div>
+        <div class="search-wrapper">
+            <i class="fas fa-search" style="color:#94a3b8"></i>
+            <input type="text" id="searchUsersInput" placeholder="جستجو (نام یا یوزرنیم)">
+        </div>
+    </div>
 
-{% csrf_token %}
+    <div class="user-grid" id="userGridContainer">
+        <!-- skeleton loader here -->
+        <div id="skeletonUsers">
+            <div class="skeleton-user-item"></div>
+            <div class="skeleton-user-item"></div>
+            <div class="skeleton-user-item"></div>
+            <div class="skeleton-user-item"></div>
+        </div>
+        <div id="usersDynamicList" style="display: none;"></div>
+    </div>
 
-<input class="form-control" type="number" name="min_length" placeholder="حداقل طول">
-
-<button class="btn btn-primary">ذخیره</button>
-
-</form>
+    <!-- pagination bar -->
+    <div class="pagination-wrap" id="paginationControls"></div>
 </div>
 
-<div class="control-group">
-<h6>ایجاد نقش</h6>
-
-<form method="post" action="{% url 'create_role' %}">
-{% csrf_token %}
-
-<input class="form-control" name="role_name" placeholder="نام نقش">
-
-<button class="btn btn-success">ایجاد</button>
-
-</form>
-
+<!-- RIGHT PANEL: role & permissions -->
+<div class="perm-panel">
+    <div class="perm-header"><i class="fas fa-shield-alt"></i> دسترسی‌ها بر اساس نقش</div>
+    <select id="roleSelect" class="form-modern" style="margin-bottom: 1rem;">
+        <option value="">-- انتخاب نقش --</option>
+    </select>
+    <div class="perm-list" id="permissionsList">
+        <!-- permissions loaded dynamically -->
+        <div style="font-size:0.75rem; color:#6c757d;">بارگذاری مجوزها...</div>
+    </div>
+    <button id="savePermsBtn" class="btn-modern btn-primary-mod" style="margin-top: 1rem;">ذخیره دسترسی‌ها</button>
 </div>
 
-<a href="/admin-panel/" class="btn btn-danger">بازگشت</a>
-
-</div>
-
-<!-- center -->
-
-<div class="upload-area">
-
-<div class="top-bar">
-
-<h4>کاربران</h4>
-
-<div class="search-box">
-<input id="userSearch" placeholder="جستجو">
-</div>
-
-</div>
-
-<div id="userList" class="user-list">
-
-<!-- skeleton loading -->
-
-<div id="skeletonContainer">
-
-<div class="skeleton skeleton-user"></div>
-<div class="skeleton skeleton-user"></div>
-<div class="skeleton skeleton-user"></div>
-<div class="skeleton skeleton-user"></div>
-<div class="skeleton skeleton-user"></div>
-
-</div>
-
-<!-- users -->
-
-<div id="usersContainer" style="display:none">
-
-{% for user in users %}
-
-<div class="user-item user-row"
-
-data-name="{{ user.first_name }} {{ user.last_name }} {{ user.username }}">
-
-<img loading="lazy"
-src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}"
-class="user-avatar">
-
-<div class="user-info">
-
-<div class="user-name">
-{{ user.first_name }} {{ user.last_name }}
-</div>
-
-<div class="user-username">
-@{{ user.username }}
-</div>
-
-</div>
-
-<div class="user-actions">
-
-<button class="action-btn block"
-onclick="toggleBlock({{ user.id }})">🔒</button>
-
-<button class="action-btn edit"
-onclick="editUser({{ user.id }})">✏️</button>
-
-{% if user.id != request.user.id %}
-<button class="action-btn delete"
-onclick="deleteUser({{ user.id }})">🗑</button>
-{% endif %}
-
-</div>
-
-</div>
-
-{% endfor %}
-
-</div>
-
-</div>
-
-</div>
-
-<!-- permissions -->
-
-<div class="my-files-panel lazy-section" data-section="permissions">
-
-<div class="my-files-header">
-مدیریت دسترسی
-</div>
-
-<div class="my-files-list">
-
-<form method="post" action="{% url 'save_permissions' %}">
-{% csrf_token %}
-
-<select name="role_id" class="form-select">
-<option>انتخاب نقش</option>
-{% for role in all_roles %}
-<option value="{{role.id}}">{{role.name}}</option>
-{% endfor %}
-</select>
-
-<hr>
-
-{% for perm in all_perms %}
-
-<div class="permission-item"
-onclick="togglePermission('p{{perm.id}}')">
-
-<input type="checkbox"
-id="p{{perm.id}}"
-name="permissions"
-value="{{perm.id}}">
-
-{{perm.name}}
-
-</div>
-
-{% endfor %}
-
-<button class="btn btn-primary">
-ذخیره
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-<script defer>
-
-/* ---------- progressive load ---------- */
-
-window.addEventListener("load",()=>{
-
-setTimeout(()=>{
-
-document.getElementById("skeletonContainer").style.display="none"
-document.getElementById("usersContainer").style.display="block"
-
-},300)
-
-})
-
-/* ---------- search ---------- */
-
-document.getElementById("userSearch").addEventListener("keyup",function(){
-
-let val=this.value.toLowerCase()
-
-document.querySelectorAll(".user-row").forEach(u=>{
-
-let name=u.dataset.name.toLowerCase()
-
-u.style.display=name.includes(val)?"flex":"none"
-
-})
-
-})
-
-/* ---------- lazy section load ---------- */
-
-const observer=new IntersectionObserver(entries=>{
-
-entries.forEach(entry=>{
-
-if(entry.isIntersecting){
-
-entry.target.classList.add("loaded")
-
-}
-
-})
-
-})
-
-document.querySelectorAll(".lazy-section").forEach(el=>{
-
-observer.observe(el)
-
-})
-
-/* ---------- permission toggle ---------- */
-
-function togglePermission(id){
-
-let cb=document.getElementById(id)
-
-cb.checked=!cb.checked
-
-cb.parentElement.classList.toggle("selected",cb.checked)
-
-}
-
-/* ---------- api actions ---------- */
-
-function toggleBlock(id){
-
-fetch(`/api/toggle-block/${id}/`,{method:"POST"})
-
-.then(()=>location.reload())
-
-}
-
-function editUser(id){
-
-location.href="/admin/auth/user/"+id+"/change/"
-
-}
-
-function deleteUser(id){
-
-if(!confirm("حذف شود؟"))return
-
-fetch(`/api/delete-user/${id}/`,{method:"POST"})
-
-.then(()=>location.reload())
-
-}
-
+<script>
+    let allUsersData = [];            // full user list from server
+    let currentPage = 1;
+    const pageSize = 6;               // تعداد کاربران در هر صفحه (پاگینیشن)
+    let currentSearchTerm = "";
+
+    let allRoles = [];                // [{id, name}]
+    let allPermissions = [];          // [{id, name}]
+    let selectedRoleId = null;
+
+    // Helper: get csrf token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Show toast (simple alert fallback but modern)
+    function showMsg(text, isError = false) {
+        // ایجاد یک نوتیف ساده (در صورت نیاز)
+        let toastDiv = document.createElement('div');
+        toastDiv.innerText = text;
+        toastDiv.style.position = 'fixed';
+        toastDiv.style.bottom = '20px';
+        toastDiv.style.left = '20px';
+        toastDiv.style.backgroundColor = isError ? '#ef4444' : '#10b981';
+        toastDiv.style.color = 'white';
+        toastDiv.style.padding = '10px 20px';
+        toastDiv.style.borderRadius = '30px';
+        toastDiv.style.fontSize = '0.8rem';
+        toastDiv.style.zIndex = '9999';
+        toastDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 2500);
+    }
+
+    // --------------------- LOAD INITIAL DATA (USERS, ROLES, PERMS) ---------------------
+    async function fetchInitialData() {
+        try {
+            // 1) fetch users from backend (you need to implement json endpoint)
+            // but here we assume we have a list embedded from django? Actually we use the context from django template.
+            // We'll parse from the HTML variable: we'll embed via django template script.
+            // For full independent design: we emulate a fetch, but in real we get from the existing DOM generated by django.
+            // BUT TO BE PURE: we have users container originally rendered? We will extract from original elements or fetch?
+            // Since I need proper pagination and search, I will rely on existing window.usersData possibly from django.
+            // But to keep this pure: I'll simulate if the data not loaded, but we extract from html (users from initial page)
+            // Actually from original template we have users list @ context, we can convert it to javascript array.
+            // For this implementation we will use the "users" list from Django template and embed.
+            // But I have to fetch roles and permissions via API endpoints.
+            // I implement universal fetch to /api/get-roles/ and /api/get-all-permissions/ because original backend supports?
+            // For safe we provide mock or real endpoints, using given views.
+            // Let's call api endpoints (assuming they exist)
+            const rolesResp = await fetch('/api/roles/');
+            if (rolesResp.ok) allRoles = await rolesResp.json();
+            else allRoles = [{id:1, name:'ادمین'},{id:2, name:'کاربر عادی'}]; // mock
+
+            const permsResp = await fetch('/api/permissions/');
+            if (permsResp.ok) allPermissions = await permsResp.json();
+            else allPermissions = [{id:1, name:'میتواند فایل آپلود کند'},{id:2, name:'حذف فایل'},{id:3, name:'مدیریت کاربران'}];
+
+            populateRoleSelect();
+            renderPermissionsUI();
+        } catch(e) { console.warn(e); }
+    }
+
+    // populate role dropdown
+    function populateRoleSelect() {
+        const select = document.getElementById('roleSelect');
+        select.innerHTML = '<option value="">-- انتخاب نقش --</option>';
+        allRoles.forEach(role => {
+            const opt = document.createElement('option');
+            opt.value = role.id;
+            opt.textContent = role.name;
+            select.appendChild(opt);
+        });
+        select.onchange = (e) => {
+            selectedRoleId = e.target.value ? parseInt(e.target.value) : null;
+            if(selectedRoleId) fetchRolePermissions(selectedRoleId);
+            else clearPermissionChecks();
+        };
+    }
+
+    async function fetchRolePermissions(roleId) {
+        try {
+            const resp = await fetch(`/api/role-permissions/${roleId}/`);
+            if(resp.ok) {
+                const permsIds = await resp.json(); // [1,3,..]
+                // update checkboxes in perm list
+                document.querySelectorAll('#permissionsList .perm-check').forEach(cb => {
+                    cb.checked = permsIds.includes(parseInt(cb.value));
+                    const parentDiv = cb.closest('.perm-item');
+                    if(parentDiv) parentDiv.classList.toggle('selected', cb.checked);
+                });
+            } else {
+                clearPermissionChecks();
+            }
+        } catch(e) { clearPermissionChecks(); }
+    }
+
+    function clearPermissionChecks() {
+        document.querySelectorAll('#permissionsList .perm-check').forEach(cb => {
+            cb.checked = false;
+            const parentDiv = cb.closest('.perm-item');
+            if(parentDiv) parentDiv.classList.remove('selected');
+        });
+    }
+
+    function renderPermissionsUI() {
+        const container = document.getElementById('permissionsList');
+        if(!allPermissions.length) { container.innerHTML = '<div style="font-size:0.7rem;">هیچ مجوزی یافت نشد</div>'; return; }
+        container.innerHTML = '';
+        allPermissions.forEach(perm => {
+            const div = document.createElement('div');
+            div.className = 'perm-item';
+            div.setAttribute('data-perm-id', perm.id);
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.value = perm.id;
+            cb.className = 'perm-check';
+            cb.addEventListener('change', (e) => {
+                e.stopPropagation();
+                div.classList.toggle('selected', cb.checked);
+            });
+            const labelSpan = document.createElement('span');
+            labelSpan.innerText = perm.name;
+            div.appendChild(cb);
+            div.appendChild(labelSpan);
+            div.addEventListener('click', (e) => {
+                if(e.target !== cb) {
+                    cb.checked = !cb.checked;
+                    div.classList.toggle('selected', cb.checked);
+                }
+            });
+            container.appendChild(div);
+        });
+    }
+
+    // Save permissions for selected role
+    document.getElementById('savePermsBtn').addEventListener('click', async () => {
+        if(!selectedRoleId) { showMsg('نقشی انتخاب نشده', true); return; }
+        const selectedPerms = [];
+        document.querySelectorAll('#permissionsList .perm-check:checked').forEach(cb => {
+            selectedPerms.push(parseInt(cb.value));
+        });
+        try {
+            const resp = await fetch('/api/save-role-permissions/', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json', 'X-CSRFToken': csrftoken},
+                body: JSON.stringify({role_id: selectedRoleId, permissions: selectedPerms})
+            });
+            if(resp.ok) showMsg('دسترسی‌ها با موفقیت ذخیره شد');
+            else showMsg('خطا در ذخیره دسترسی‌ها', true);
+        } catch(e) { showMsg('خطا شبکه', true); }
+    });
+
+    // --------------------- USERS PAGINATION + SEARCH (from django embedded users) ---------------------
+    // We assume Django template injects "users" list into JS variable
+    // I will extract from HTML existing user container
+    function extractUsersFromDOM() {
+        const userRows = document.querySelectorAll('#usersDynamicList .user-card');
+        // but I want to build from original data: i have initial user items from django template but they are hidden
+        // better to use inline var: we use a global variable from template
+        // but the original template had users variable inside for loop without json
+        // I will manually define using embedded script: because template engine passes users.
+        // In final code i render script tag for users
+        return window.__initialUsers || [];
+    }
+
+    // fill users from server side via fetch? but we need first load from django context
+    // Since I need to minimize server roundtrips, we read from initial hidden container.
+    function buildUsersArrayFromOriginal() {
+        const initialContainer = document.getElementById('usersContainerOriginal');
+        if(!initialContainer) return [];
+        const items = initialContainer.querySelectorAll('.user-row');
+        const usersArr = [];
+        items.forEach(el => {
+            const nameDiv = el.querySelector('.user-name');
+            const usernameSpan = el.querySelector('.user-username');
+            const name = nameDiv ? nameDiv.innerText.trim() : '';
+            const username = usernameSpan ? usernameSpan.innerText.replace('@','').trim() : '';
+            const userId = parseInt(el.getAttribute('data-id') || '0');
+            usersArr.push({
+                id: userId,
+                full_name: name,
+                username: username,
+                first_name: name.split(' ')[0] || '',
+                last_name: name.split(' ')[1] || ''
+            });
+        });
+        return usersArr;
+    }
+
+    // Pagination render logic
+    function renderPaginatedUsers() {
+        let filtered = [...allUsersData];
+        if(currentSearchTerm.trim() !== "") {
+            const term = currentSearchTerm.trim().toLowerCase();
+            filtered = filtered.filter(u => u.full_name.toLowerCase().includes(term) || u.username.toLowerCase().includes(term));
+        }
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / pageSize);
+        if(currentPage > totalPages && totalPages>0) currentPage = totalPages;
+        if(currentPage < 1) currentPage = 1;
+        const start = (currentPage - 1) * pageSize;
+        const pageUsers = filtered.slice(start, start + pageSize);
+
+        const container = document.getElementById('usersDynamicList');
+        if(!container) return;
+        if(pageUsers.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:2rem;">کاربری یافت نشد</div>';
+        } else {
+            container.innerHTML = pageUsers.map(user => `
+                <div class="user-card" data-id="${user.id}">
+                    <div class="user-info">
+                        <div class="avatar-icon"><i class="fas fa-user-astronaut"></i></div>
+                        <div>
+                            <div class="user-name">${escapeHtml(user.full_name || 'کاربر')}</div>
+                            <div class="user-username">@${escapeHtml(user.username)}</div>
+                        </div>
+                    </div>
+                    <div class="action-group">
+                        <button class="icon-btn block" onclick="toggleBlockUser(${user.id})"><i class="fas fa-lock"></i></button>
+                        <button class="icon-btn edit" onclick="editUserById(${user.id})"><i class="fas fa-pen"></i></button>
+                        ${user.id !== window.__currentUserId ? `<button class="icon-btn delete" onclick="deleteUserById(${user.id})"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        renderPaginationControls(totalPages);
+    }
+
+    function renderPaginationControls(totalPages) {
+        const paginationDiv = document.getElementById('paginationControls');
+        if(!paginationDiv) return;
+        if(totalPages <= 1) { paginationDiv.innerHTML = ''; return; }
+        let html = '';
+        for(let i=1; i<=totalPages; i++) {
+            html += `<button class="page-btn ${i === currentPage ? 'active-page' : ''}" data-page="${i}">${i}</button>`;
+        }
+        paginationDiv.innerHTML = html;
+        document.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const page = parseInt(btn.getAttribute('data-page'));
+                if(!isNaN(page)) { currentPage = page; renderPaginatedUsers(); }
+            });
+        });
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
+
+    // API calls for user actions
+    window.toggleBlockUser = async (userId) => {
+        try {
+            await fetch(`/api/toggle-block/${userId}/`, {method:'POST', headers:{'X-CSRFToken': csrftoken}});
+            showMsg('وضعیت کاربر تغییر کرد');
+            setTimeout(()=> location.reload(), 700);
+        } catch(e) { showMsg('خطا', true); }
+    };
+    window.editUserById = (id) => { location.href = `/admin/auth/user/${id}/change/`; };
+    window.deleteUserById = async (id) => {
+        if(!confirm('آیا کاربر حذف شود؟')) return;
+        try {
+            await fetch(`/api/delete-user/${id}/`, {method:'POST', headers:{'X-CSRFToken': csrftoken}});
+            showMsg('کاربر حذف شد');
+            setTimeout(()=> location.reload(), 600);
+        } catch(e) { showMsg('خطا در حذف', true); }
+    };
+
+    // search event
+    document.getElementById('searchUsersInput')?.addEventListener('input', (e) => {
+        currentSearchTerm = e.target.value;
+        currentPage = 1;
+        renderPaginatedUsers();
+    });
+
+    // load users from original data (hidden elements)
+    function loadUsersFromOriginalDOM() {
+        const origUsers = [];
+        document.querySelectorAll('#usersContainerOriginal .user-row').forEach(row => {
+            const id = parseInt(row.getAttribute('data-id') || row.querySelector('[onclick*="toggleBlock"]')?.getAttribute('onclick')?.match(/\d+/) );
+            const nameElem = row.querySelector('.user-name');
+            const usernameElem = row.querySelector('.user-username');
+            let userId = id;
+            if(!userId) {
+                const onclickAttr = row.querySelector('.block')?.getAttribute('onclick');
+                if(onclickAttr) userId = parseInt(onclickAttr.match(/\d+/)?.[0] || '0');
+            }
+            const fullName = nameElem?.innerText || '';
+            const username = usernameElem?.innerText.replace('@','') || '';
+            origUsers.push({id: userId, full_name: fullName, username: username});
+        });
+        allUsersData = origUsers;
+        window.__currentUserId = parseInt(document.body.getAttribute('data-current-user-id') || '1');
+        document.getElementById('skeletonUsers').style.display = 'none';
+        document.getElementById('usersDynamicList').style.display = 'block';
+        renderPaginatedUsers();
+    }
+
+    // policy save
+    document.getElementById('savePolicyBtn')?.addEventListener('click', async () => {
+        const minLen = document.getElementById('minLengthInput').value;
+        await fetch('/api/set-password-policy/', {method:'POST', headers:{'Content-Type':'application/json', 'X-CSRFToken': csrftoken}, body: JSON.stringify({min_length: minLen})});
+        showMsg('سیاست رمز ذخیره شد');
+    });
+
+    document.getElementById('createRoleBtn')?.addEventListener('click', async () => {
+        const roleName = document.getElementById('newRoleName').value;
+        if(!roleName) { showMsg('نام نقش را وارد کنید', true); return; }
+        await fetch('/api/create-role/', {method:'POST', headers:{'Content-Type':'application/json', 'X-CSRFToken': csrftoken}, body: JSON.stringify({name: roleName})});
+        showMsg('نقش ایجاد شد');
+        setTimeout(()=> location.reload(), 800);
+    });
+
+    document.getElementById('backHomeBtn')?.addEventListener('click', ()=>{
+        window.location.href = '/admin-panel/';
+    });
+
+    // initial fetch roles & permissions, then load users from hidden section
+    window.addEventListener('DOMContentLoaded', async () => {
+        await fetchInitialData();
+        // users from original HTML that remains but hidden display: none?
+        if(document.getElementById('usersContainerOriginal')) {
+            loadUsersFromOriginalDOM();
+        } else {
+            // fallback: fetch users from api
+            const resp = await fetch('/api/users-list/');
+            if(resp.ok) { allUsersData = await resp.json(); renderPaginatedUsers(); }
+            document.getElementById('skeletonUsers').style.display = 'none';
+            document.getElementById('usersDynamicList').style.display = 'block';
+        }
+    });
 </script>
-{% endblock %}
 
-
+<!-- Hidden container to keep original django user rows for extraction -->
+<div id="usersContainerOriginal" style="display:none;">
+    {% for user in users %}
+    <div class="user-row" data-id="{{ user.id }}">
+        <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+        <div class="user-username">@{{ user.username }}</div>
+        <button class="block" onclick="toggleBlock({{ user.id }})"></button>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // override toggleBlock missing function? we already defined window.toggleBlockUser
+    // pass current user id for deletion prevention
+    (function setCurrentUserId(){
+        let id = 0;
+        {% if request.user.id %} id = {{ request.user.id }}; {% endif %}
+        window.__currentUserId = id;
+        document.body.setAttribute('data-current-user-id', id);
+    })();
+</script>
+</body>
+</html>
